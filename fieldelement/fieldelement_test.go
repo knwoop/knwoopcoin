@@ -8,8 +8,8 @@ import (
 
 func TestNewFieldElement(t *testing.T) {
 	type args struct {
-		Num   uint64
-		Prime uint64
+		Num   int64
+		Prime int64
 	}
 	tests := []struct {
 		name    string
@@ -99,6 +99,144 @@ func TestFieldElement_Eq(t *testing.T) {
 			}
 
 			if diff := cmp.Diff(fe.Eq(others), tt.want); diff != "" {
+				t.Errorf("(-got +want)\n%v", diff)
+			}
+		})
+	}
+}
+
+func TestFieldElement_Add(t *testing.T) {
+	type args struct {
+		fieldelement1 *FieldElement
+		fieldelement2 *FieldElement
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *FieldElement
+		wantErr bool
+	}{
+		{
+			name: "44 + 33",
+			args: args{
+				fieldelement1: &FieldElement{
+					Num:   44,
+					Prime: 57,
+				},
+				fieldelement2: &FieldElement{
+					Num:   33,
+					Prime: 57,
+				},
+			},
+			want: &FieldElement{
+				Num:   20,
+				Prime: 57,
+			},
+			wantErr: false,
+		},
+		{
+			name: "9 + (-29)",
+			args: args{
+				fieldelement1: &FieldElement{
+					Num:   9,
+					Prime: 57,
+				},
+				fieldelement2: &FieldElement{
+					Num:   -29,
+					Prime: 57,
+				},
+			},
+			want: &FieldElement{
+				Num:   37,
+				Prime: 57,
+			},
+			wantErr: false,
+		},
+		{
+			name: "error diffrent primes",
+			args: args{
+				fieldelement1: &FieldElement{
+					Num:   5,
+					Prime: 13,
+				},
+				fieldelement2: &FieldElement{
+					Num:   33,
+					Prime: 57,
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.args.fieldelement1.Add(tt.args.fieldelement2)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Add(), error: %v, wantErr: %v", err, tt.wantErr)
+			}
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("(-got +want)\n%v", diff)
+			}
+		})
+	}
+}
+
+func TestFieldElement_Sub(t *testing.T) {
+	type args struct {
+		fieldelement1 *FieldElement
+		fieldelement2 *FieldElement
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *FieldElement
+		wantErr bool
+	}{
+		{
+			name: "9 - 29",
+			args: args{
+				fieldelement1: &FieldElement{
+					Num:   9,
+					Prime: 57,
+				},
+				fieldelement2: &FieldElement{
+					Num:   29,
+					Prime: 57,
+				},
+			},
+			want: &FieldElement{
+				Num:   37,
+				Prime: 57,
+			},
+			wantErr: false,
+		},
+		{
+			name: "error diffrent primes",
+			args: args{
+				fieldelement1: &FieldElement{
+					Num:   5,
+					Prime: 13,
+				},
+				fieldelement2: &FieldElement{
+					Num:   33,
+					Prime: 57,
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.args.fieldelement1.Sub(tt.args.fieldelement2)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Sub(), error: %v, wantErr: %v", err, tt.wantErr)
+			}
+			if diff := cmp.Diff(got, tt.want); diff != "" {
 				t.Errorf("(-got +want)\n%v", diff)
 			}
 		})
