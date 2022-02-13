@@ -41,7 +41,7 @@ func (fe *FieldElement) Add(other *FieldElement) (*FieldElement, error) {
 	if fe.Prime != other.Prime {
 		return nil, ErrInvalidPrime
 	}
-	num := modLikePython(fe.Num+other.Num, fe.Prime)
+	num := mod(fe.Num+other.Num, fe.Prime)
 	return NewFieldElement(num, fe.Prime)
 }
 
@@ -49,11 +49,19 @@ func (fe *FieldElement) Sub(other *FieldElement) (*FieldElement, error) {
 	if fe.Prime != other.Prime {
 		return nil, ErrInvalidPrime
 	}
-	num := modLikePython(fe.Num-other.Num, fe.Prime)
+	num := mod(fe.Num-other.Num, fe.Prime)
 	return NewFieldElement(num, fe.Prime)
 }
 
-func modLikePython(d, m int64) int64 {
+func (fe *FieldElement) Mul(other *FieldElement) (*FieldElement, error) {
+	if fe.Prime != other.Prime {
+		return nil, ErrInvalidPrime
+	}
+	num := mod(fe.Num*other.Num, fe.Prime)
+	return NewFieldElement(num, fe.Prime)
+}
+
+func mod(d, m int64) int64 {
 	res := d % m
 	if (res < 0 && m > 0) || (res > 0 && m < 0) {
 		return res + m
