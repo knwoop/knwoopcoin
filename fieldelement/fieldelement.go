@@ -3,6 +3,7 @@ package fieldelement
 import (
 	"errors"
 	"fmt"
+	"math/big"
 )
 
 var (
@@ -14,8 +15,8 @@ var (
 
 // FieldElement represents finite field
 type FieldElement struct {
-	Num   int64
-	Prime int64
+	Num   *big.Int
+	Prime *big.Int
 }
 
 // NewFieldElement initializes struct
@@ -24,8 +25,8 @@ func NewFieldElement(num, prime int64) (*FieldElement, error) {
 		return nil, ErrOutOfRangeNumber
 	}
 	return &FieldElement{
-		Num:   num,
-		Prime: prime,
+		Num:   big.NewInt(num),
+		Prime: big.NewInt(prime),
 	}, nil
 }
 
@@ -34,31 +35,36 @@ func (fe *FieldElement) String() string {
 }
 
 func (fe *FieldElement) Eq(other *FieldElement) bool {
-	return fe.Num == other.Num && fe.Prime == other.Prime
+	return fe.Num.Cmp(other.Num) == 0 && fe.Prime.Cmp(other.Prime) == 0
 }
 
 func (fe *FieldElement) Add(other *FieldElement) (*FieldElement, error) {
-	if fe.Prime != other.Prime {
+	if fe.Prime.Cmp(other.Prime) != 0 {
 		return nil, ErrInvalidPrime
 	}
-	num := mod(fe.Num+other.Num, fe.Prime)
-	return NewFieldElement(num, fe.Prime)
+	num := fe.Num.Add(fe.Num, other.Num).Mod(fe.Num, fe.Prime)
+	return NewFieldElement(num.Int64(), fe.Prime.Int64())
 }
 
 func (fe *FieldElement) Sub(other *FieldElement) (*FieldElement, error) {
-	if fe.Prime != other.Prime {
+	if fe.Prime.Cmp(other.Prime) != 0 {
 		return nil, ErrInvalidPrime
 	}
-	num := mod(fe.Num-other.Num, fe.Prime)
-	return NewFieldElement(num, fe.Prime)
+	num := fe.Num.Sub(fe.Num, other.Num).Mod(fe.Num, fe.Prime)
+	return NewFieldElement(num.Int64(), fe.Prime.Int64())
 }
 
 func (fe *FieldElement) Mul(other *FieldElement) (*FieldElement, error) {
-	if fe.Prime != other.Prime {
+	if fe.Prime.Cmp(other.Prime) != 0 {
 		return nil, ErrInvalidPrime
 	}
-	num := mod(fe.Num*other.Num, fe.Prime)
-	return NewFieldElement(num, fe.Prime)
+	num := fe.Num.Mul(fe.Num, other.Num).Mod(fe.Num, fe.Prime)
+	return NewFieldElement(num.Int64(), fe.Prime.Int64())
+}
+
+func (fe *FieldElement) Pow(exponent int64) (*FieldElement, error) {
+	num := fe.Num.Exp(fe.Num, big.NewInt(exponent), fe.Prime)
+	return NewFieldElement(num.Int64(), fe.Prime.Int64())
 }
 
 func mod(d, m int64) int64 {
@@ -67,4 +73,12 @@ func mod(d, m int64) int64 {
 		return res + m
 	}
 	return res
+}
+
+func modUint(d uint64, m int64) int64 {
+	res := d % uint64(m)
+	if (res < 0 && m > 0) || (res > 0 && m < 0) {
+		return int64(res) + m
+	}
+	return int64(res)
 }

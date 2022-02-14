@@ -1,6 +1,7 @@
 package fieldelement
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -24,8 +25,8 @@ func TestNewFieldElement(t *testing.T) {
 				Prime: 13,
 			},
 			want: &FieldElement{
-				Num:   7,
-				Prime: 13,
+				Num:   big.NewInt(7),
+				Prime: big.NewInt(13),
 			},
 		},
 		{
@@ -55,7 +56,9 @@ func TestNewFieldElement(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewFieldElement(), error: %v, wantErr: %v", err, tt.wantErr)
 			}
-			if diff := cmp.Diff(got, tt.want); diff != "" {
+
+			ops := cmp.AllowUnexported(big.Int{})
+			if diff := cmp.Diff(got, tt.want, ops); diff != "" {
 				t.Errorf("(-got +want)\n%v", diff)
 			}
 		})
@@ -71,16 +74,16 @@ func TestFieldElement_Eq(t *testing.T) {
 		{
 			name: "Eq returns true",
 			args: FieldElement{
-				Num:   7,
-				Prime: 13,
+				Num:   big.NewInt(7),
+				Prime: big.NewInt(13),
 			},
 			want: true,
 		},
 		{
 			name: "Eq returns false",
 			args: FieldElement{
-				Num:   6,
-				Prime: 13,
+				Num:   big.NewInt(6),
+				Prime: big.NewInt(13),
 			},
 			want: false,
 		},
@@ -93,12 +96,13 @@ func TestFieldElement_Eq(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			others, err := NewFieldElement(tt.args.Num, tt.args.Prime)
+			others, err := NewFieldElement(tt.args.Num.Int64(), tt.args.Prime.Int64())
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			if diff := cmp.Diff(fe.Eq(others), tt.want); diff != "" {
+			ops := cmp.AllowUnexported(big.Int{})
+			if diff := cmp.Diff(fe.Eq(others), tt.want, ops); diff != "" {
 				t.Errorf("(-got +want)\n%v", diff)
 			}
 		})
@@ -120,17 +124,17 @@ func TestFieldElement_Add(t *testing.T) {
 			name: "44 + 33",
 			args: args{
 				fieldelement1: &FieldElement{
-					Num:   44,
-					Prime: 57,
+					Num:   big.NewInt(44),
+					Prime: big.NewInt(57),
 				},
 				fieldelement2: &FieldElement{
-					Num:   33,
-					Prime: 57,
+					Num:   big.NewInt(33),
+					Prime: big.NewInt(57),
 				},
 			},
 			want: &FieldElement{
-				Num:   20,
-				Prime: 57,
+				Num:   big.NewInt(20),
+				Prime: big.NewInt(57),
 			},
 			wantErr: false,
 		},
@@ -138,17 +142,17 @@ func TestFieldElement_Add(t *testing.T) {
 			name: "9 + (-29)",
 			args: args{
 				fieldelement1: &FieldElement{
-					Num:   9,
-					Prime: 57,
+					Num:   big.NewInt(9),
+					Prime: big.NewInt(57),
 				},
 				fieldelement2: &FieldElement{
-					Num:   -29,
-					Prime: 57,
+					Num:   big.NewInt(-29),
+					Prime: big.NewInt(57),
 				},
 			},
 			want: &FieldElement{
-				Num:   37,
-				Prime: 57,
+				Num:   big.NewInt(37),
+				Prime: big.NewInt(57),
 			},
 			wantErr: false,
 		},
@@ -156,12 +160,12 @@ func TestFieldElement_Add(t *testing.T) {
 			name: "error diffrent primes",
 			args: args{
 				fieldelement1: &FieldElement{
-					Num:   5,
-					Prime: 13,
+					Num:   big.NewInt(5),
+					Prime: big.NewInt(13),
 				},
 				fieldelement2: &FieldElement{
-					Num:   33,
-					Prime: 57,
+					Num:   big.NewInt(33),
+					Prime: big.NewInt(57),
 				},
 			},
 			want:    nil,
@@ -176,7 +180,8 @@ func TestFieldElement_Add(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Add(), error: %v, wantErr: %v", err, tt.wantErr)
 			}
-			if diff := cmp.Diff(got, tt.want); diff != "" {
+			ops := cmp.AllowUnexported(big.Int{})
+			if diff := cmp.Diff(got, tt.want, ops); diff != "" {
 				t.Errorf("(-got +want)\n%v", diff)
 			}
 		})
@@ -198,17 +203,17 @@ func TestFieldElement_Sub(t *testing.T) {
 			name: "9 - 29",
 			args: args{
 				fieldelement1: &FieldElement{
-					Num:   9,
-					Prime: 57,
+					Num:   big.NewInt(9),
+					Prime: big.NewInt(57),
 				},
 				fieldelement2: &FieldElement{
-					Num:   29,
-					Prime: 57,
+					Num:   big.NewInt(29),
+					Prime: big.NewInt(57),
 				},
 			},
 			want: &FieldElement{
-				Num:   37,
-				Prime: 57,
+				Num:   big.NewInt(37),
+				Prime: big.NewInt(57),
 			},
 			wantErr: false,
 		},
@@ -216,12 +221,12 @@ func TestFieldElement_Sub(t *testing.T) {
 			name: "error diffrent primes",
 			args: args{
 				fieldelement1: &FieldElement{
-					Num:   5,
-					Prime: 13,
+					Num:   big.NewInt(5),
+					Prime: big.NewInt(13),
 				},
 				fieldelement2: &FieldElement{
-					Num:   33,
-					Prime: 57,
+					Num:   big.NewInt(33),
+					Prime: big.NewInt(57),
 				},
 			},
 			want:    nil,
@@ -236,7 +241,9 @@ func TestFieldElement_Sub(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Sub(), error: %v, wantErr: %v", err, tt.wantErr)
 			}
-			if diff := cmp.Diff(got, tt.want); diff != "" {
+
+			ops := cmp.AllowUnexported(big.Int{})
+			if diff := cmp.Diff(got, tt.want, ops); diff != "" {
 				t.Errorf("(-got +want)\n%v", diff)
 			}
 		})
@@ -259,21 +266,21 @@ func TestFieldElement_Mul(t *testing.T) {
 			name: "95 · 45 · 31",
 			args: args{
 				fieldelement1: &FieldElement{
-					Num:   95,
-					Prime: 97,
+					Num:   big.NewInt(95),
+					Prime: big.NewInt(97),
 				},
 				fieldelement2: &FieldElement{
-					Num:   45,
-					Prime: 97,
+					Num:   big.NewInt(45),
+					Prime: big.NewInt(97),
 				},
 				fieldelement3: &FieldElement{
-					Num:   31,
-					Prime: 97,
+					Num:   big.NewInt(31),
+					Prime: big.NewInt(97),
 				},
 			},
 			want: &FieldElement{
-				Num:   23,
-				Prime: 97,
+				Num:   big.NewInt(23),
+				Prime: big.NewInt(97),
 			},
 			wantErr: false,
 		},
@@ -290,7 +297,68 @@ func TestFieldElement_Mul(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Mul(), error: %v, wantErr: %v", err, tt.wantErr)
 			}
-			if diff := cmp.Diff(got, tt.want); diff != "" {
+
+			ops := cmp.AllowUnexported(big.Int{})
+			if diff := cmp.Diff(got, tt.want, ops); diff != "" {
+				t.Errorf("(-got +want)\n%v", diff)
+			}
+		})
+	}
+}
+
+func TestFieldElement_Pow(t *testing.T) {
+	type args struct {
+		fieldelement1 *FieldElement
+		exponent1     int64
+		fieldelement2 *FieldElement
+		exponent2     int64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *FieldElement
+		wantErr bool
+	}{
+		{
+			name: "12**7 * 77**49",
+			args: args{
+				fieldelement1: &FieldElement{
+					Num:   big.NewInt(12),
+					Prime: big.NewInt(97),
+				},
+				exponent1: 7,
+				fieldelement2: &FieldElement{
+					Num:   big.NewInt(77),
+					Prime: big.NewInt(97),
+				},
+				exponent2: 49,
+			},
+			want: &FieldElement{
+				Num:   big.NewInt(64),
+				Prime: big.NewInt(97),
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			fe1, err := tt.args.fieldelement1.Pow(tt.args.exponent1)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Pow(), error: %v, wantErr: %v", err, tt.wantErr)
+			}
+			fe2, err := tt.args.fieldelement1.Pow(tt.args.exponent2)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Pow(), error: %v, wantErr: %v", err, tt.wantErr)
+			}
+			got, err := fe1.Mul(fe2)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Mul(), error: %v, wantErr: %v", err, tt.wantErr)
+			}
+
+			ops := cmp.AllowUnexported(big.Int{})
+			if diff := cmp.Diff(got, tt.want, ops); diff != "" {
 				t.Errorf("(-got +want)\n%v", diff)
 			}
 		})
