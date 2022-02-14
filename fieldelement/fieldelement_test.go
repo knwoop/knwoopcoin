@@ -242,3 +242,57 @@ func TestFieldElement_Sub(t *testing.T) {
 		})
 	}
 }
+
+func TestFieldElement_Mul(t *testing.T) {
+	type args struct {
+		fieldelement1 *FieldElement
+		fieldelement2 *FieldElement
+		fieldelement3 *FieldElement
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *FieldElement
+		wantErr bool
+	}{
+		{
+			name: "95 · 45 · 31",
+			args: args{
+				fieldelement1: &FieldElement{
+					Num:   95,
+					Prime: 97,
+				},
+				fieldelement2: &FieldElement{
+					Num:   45,
+					Prime: 97,
+				},
+				fieldelement3: &FieldElement{
+					Num:   31,
+					Prime: 97,
+				},
+			},
+			want: &FieldElement{
+				Num:   23,
+				Prime: 97,
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			fe3, err := tt.args.fieldelement1.Mul(tt.args.fieldelement2)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Mul(), error: %v, wantErr: %v", err, tt.wantErr)
+			}
+			got, err := fe3.Mul(tt.args.fieldelement3)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Mul(), error: %v, wantErr: %v", err, tt.wantErr)
+			}
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("(-got +want)\n%v", diff)
+			}
+		})
+	}
+}
