@@ -66,19 +66,3 @@ func (fe *FieldElement) Pow(exponent int64) (*FieldElement, error) {
 	num := fe.Num.Exp(fe.Num, big.NewInt(exponent), fe.Prime)
 	return NewFieldElement(num.Int64(), fe.Prime.Int64())
 }
-
-func mod(d, m int64) int64 {
-	res := d % m
-	if (res < 0 && m > 0) || (res > 0 && m < 0) {
-		return res + m
-	}
-	return res
-}
-
-func modUint(d uint64, m int64) int64 {
-	res := d % uint64(m)
-	if (res < 0 && m > 0) || (res > 0 && m < 0) {
-		return int64(res) + m
-	}
-	return int64(res)
-}
